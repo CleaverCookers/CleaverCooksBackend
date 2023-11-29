@@ -6,12 +6,36 @@ const session = driver.session();
 
 const resolvers = {
     Query: {
+        getAllIngredients: async () => {
+            try {
+                const result = await session.run('MATCH (i:Ingredient) RETURN i');
+                return result.records.map(record => record.get('i').properties);
+            } catch (error) {
+                console.error('Error fetching ingredients:', error);
+                throw new Error('Failed to fetch ingredients');
+            }
+        },
     },
     Mutation: {
+        addIngredient: async (_, { name }) => {
+            try {
+                const result = await session.run('CREATE (i:Ingredient {name: $name, quantity: 0}) RETURN i', {
+                    name,
+                });
+                const newIngredient = result.records[0].get('i').properties;
 
+                pubsub.publish('INGREDIENT_ADDED', { ingredientAdded: newIngredient });
+
+                return newIngredient;
+            } catch (error) {
+                console.error('Error adding ingredient:', error);
+                throw new Error('Failed to add ingredient');
+            }
+        },
     },
     Subscription: {
         ingredientAdded: {
+            subscribe: () => pubsub.asyncIterator(['INGREDIENT_ADDED']),
         },
     },
 };
