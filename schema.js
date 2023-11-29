@@ -3,10 +3,12 @@ const { gql } = require('apollo-server-express');
 const typeDefs = gql`
   type Query {
    getAllIngredients: [Ingredient]
+   getIngredient(id: ID!): Ingredient
   }
   
   type Mutation {
-   addIngredient(name: String!): Ingredient
+   createIngredient(name: String!): Ingredient
+   updateIngredient(id: ID!, name: String!, quantity: Int!): Ingredient
     
   }
   

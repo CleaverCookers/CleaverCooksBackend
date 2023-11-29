@@ -6,31 +6,23 @@ const session = driver.session();
 
 const resolvers = {
     Query: {
-        getAllIngredients: async () => {
-            try {
-                const result = await session.run('MATCH (i:Ingredient) RETURN i');
-                return result.records.map(record => record.get('i').properties);
-            } catch (error) {
-                console.error('Error fetching ingredients:', error);
-                throw new Error('Failed to fetch ingredients');
-            }
-        },
+        getIngredient: (parent, { id }) => ingredients.find(ingredient => ingredient.id === id),
+        getAllIngredients: () => ingredients,
     },
     Mutation: {
-        addIngredient: async (_, { name }) => {
-            try {
-                const result = await session.run('CREATE (i:Ingredient {name: $name, quantity: 0}) RETURN i', {
-                    name,
-                });
-                const newIngredient = result.records[0].get('i').properties;
+        createIngredient: (parent, { name }) => {
+            const newIngredient = { id: String(ingredients.length + 1), name };
+            ingredients.push(newIngredient);
+            return newIngredient;
+        },
 
-                pubsub.publish('INGREDIENT_ADDED', { ingredientAdded: newIngredient });
-
-                return newIngredient;
-            } catch (error) {
-                console.error('Error adding ingredient:', error);
-                throw new Error('Failed to add ingredient');
+        updateIngredient: (parent, { id, name }) => {
+            const index = ingredients.findIndex(ingredient => ingredient.id === id);
+            if (index !== -1) {
+                ingredients[index].name = name;
+                return ingredients[index];
             }
+            return null; // Ingredient not found
         },
     },
     Subscription: {
