@@ -9,6 +9,7 @@ const typeDefs = gql`
   type Mutation {
    createIngredient(name: String!): Ingredient
    updateIngredient(id: ID!, name: String!, quantity: Int!): Ingredient
+   deleteIngredient(id: ID!): Ingredient
     
   }
   

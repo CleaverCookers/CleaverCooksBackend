@@ -24,6 +24,14 @@ const resolvers = {
             }
             return null; // Ingredient not found
         },
+        deleteIngredient: (parent, { id }) => {
+            const index = ingredients.findIndex(ingredient => ingredient.id === id);
+            if (index !== -1) {
+                const deletedIngredient = ingredients.splice(index, 1);
+                return deletedIngredient[0].id;
+            }
+            return null; // Ingredient not found
+        },
     },
     Subscription: {
         ingredientAdded: {
