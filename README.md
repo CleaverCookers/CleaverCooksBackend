@@ -22,6 +22,12 @@
    ```bash
    npm install
    ```
+3. **Set Environment Variables**: Copy the .env.example to `.env` in the project root directory and add the following environment variables.
+   ```bash
+    NEO4J_URI=your_neo4j_uri
+    NEO4J_USERNAME=your_neo4j_username
+    NEO4J_PASSWORD=your_neo4j_password
+   ```
 
 ## Development Workflow
 
