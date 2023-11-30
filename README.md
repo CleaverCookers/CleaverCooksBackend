@@ -8,10 +8,6 @@
 
 3. **Neo4j Database**: Ensure you have a Neo4j database set up. You can download and install Neo4j from the official Neo4j website: [Neo4j Downloads](https://neo4j.com/download/).
 
-4. **Neo4j Driver**: Install the Neo4j JavaScript driver.
-
-   ```bash
-   npm install neo4j-driver
 ## Getting Started
 
 1. **Clone the Repository**: Open your terminal or command prompt and run the following commands to clone the project.
