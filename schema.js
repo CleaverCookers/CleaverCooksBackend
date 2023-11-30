@@ -2,28 +2,24 @@ const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
   type Query {
-   getAllIngredients: [Ingredient]
-   getIngredient(id: ID!): Ingredient
+    getAllIngredients: [Ingredient]
+    getIngredient(id: ID!): Ingredient
   }
   
   type Mutation {
-   createIngredient(name: String!): Ingredient
-   updateIngredient(id: ID!, name: String!, quantity: Int!): Ingredient
-   deleteIngredient(id: ID!): Ingredient
-    
+    createIngredient(name: String!): Ingredient
+    updateIngredient(id: ID!, name: String!): Ingredient
+    deleteIngredient(id: ID!): Ingredient
   }
   
   type Subscription {
-   ingredientAdded: Ingredient
+    ingredientAdded: Ingredient
   }
 
-
   type Ingredient {
-   id: ID!
-   name: String!
-   quantity: Int!
+    id: ID!
+    name: String!
   }
 `;
 
 module.exports = typeDefs;
-
