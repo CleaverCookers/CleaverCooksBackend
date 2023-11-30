@@ -6,7 +6,8 @@
 
 2. **Git**: Ensure that Git is installed on your machine. You can download and install it from the official Git website: [Git Downloads](https://git-scm.com).
 
-3. 1. **Neo4j Database**: Ensure you have a Neo4j database set up. You can download and install Neo4j from the official Neo4j website: [Neo4j Downloads](https://neo4j.com/download/).
+3. **Neo4j Database**: Ensure you have a Neo4j database set up. You can download and install Neo4j from the official Neo4j website: [Neo4j Downloads](https://neo4j.com/download/).
+
 4. **Neo4j Driver**: Install the Neo4j JavaScript driver.
 
    ```bash
