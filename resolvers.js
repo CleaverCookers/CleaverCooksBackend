@@ -8,6 +8,7 @@ const NEO4J_PASSWORD = process.env.NEO4J_PASSWORD;
 const driver = neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 const session = driver.session();
 
+let ingredients = [];
 const resolvers = {
     Query: {
         getIngredient: (parent, { id }) => ingredients.find(ingredient => ingredient.id === id),
@@ -23,6 +24,7 @@ const resolvers = {
                 createdIngredient.id = result.records[0].get('i').identity.low;
 
                 // Optionally, you can update your local ingredients array
+
                 ingredients.push(createdIngredient);
 
                 return createdIngredient;
