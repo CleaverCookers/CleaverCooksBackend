@@ -6,6 +6,8 @@
 
 2. **Git**: Ensure that Git is installed on your machine. You can download and install it from the official Git website: [Git Downloads](https://git-scm.com).
 
+3. **Neo4j Database**: Ensure you have a Neo4j database set up. You can download and install Neo4j from the official Neo4j website: [Neo4j Downloads](https://neo4j.com/download/).
+
 ## Getting Started
 
 1. **Clone the Repository**: Open your terminal or command prompt and run the following commands to clone the project.
@@ -19,6 +21,12 @@
 
    ```bash
    npm install
+   ```
+3. **Set Environment Variables**: Copy the .env.example to `.env` in the project root directory and add the following environment variables.
+   ```bash
+    NEO4J_URI=your_neo4j_uri
+    NEO4J_USERNAME=your_neo4j_username
+    NEO4J_PASSWORD=your_neo4j_password
    ```
 
 ## Development Workflow
