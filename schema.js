@@ -4,8 +4,6 @@ const typeDefs = gql`
   type Query {
     getAllIngredients: [Ingredient]
     getIngredient(id: ID!): Ingredient
-    getAllRecipes: [Recipe]
-    getRecipe(id: ID!): Recipe
   }
   
   type Mutation {
