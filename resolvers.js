@@ -1,5 +1,8 @@
 require('dotenv').config();
 const neo4j = require('neo4j-driver');
+const { Ingredient } = require('./model/Ingredient');
+const { Element } = require('./model/Element');
+const { Recipe } = require('./model/Recipe');
 
 const NEO4J_URI = process.env.NEO4J_URI;
 const NEO4J_USERNAME = process.env.NEO4J_USERNAME;
@@ -9,10 +12,9 @@ const driver = neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PA
 const session = driver.session();
 
 let ingredients = [];
+let recipes = [];
 const resolvers = {
     Query: {
-        getIngredient: (parent, { id }) => ingredients.find(ingredient => ingredient.id === id),
-        getAllIngredients: () => ingredients,
     },
     Mutation: {
         createIngredient: async (parent, { name }) => {
@@ -78,11 +80,55 @@ const resolvers = {
                 throw new Error(`Failed to delete ingredient: ${error.message}`);
             }
         },
-    },
-    Subscription: {
-        ingredientAdded: {
-            subscribe: () => pubsub.asyncIterator(['INGREDIENT_ADDED']),
-        },
+        createRecipe: async (parent, { name, instructions, ingredients }) => {
+            const session = driver.session();
+        
+            const createRecipeQuery = `
+                CREATE (recipe:Recipe {name: $name, instructions: $instructions})
+                WITH recipe
+                UNWIND $ingredients AS ingredientData
+                MATCH (ingredient:Ingredient) WHERE id(ingredient) = toInteger(ingredientData.id)
+                CREATE (recipe)-[:use {amount: toFloat(ingredientData.amount)}]->(ingredient)
+                RETURN recipe, ID(recipe) AS recipeId,
+                COLLECT({ id: toString(id(ingredient)), amount: toFloat(ingredientData.amount), ingredient: { id: toString(id(ingredient)), name: ingredient.name } }) AS elements
+                `;
+        
+            const parameters = {
+                name,
+                instructions,
+                ingredients,
+            };
+                  
+            try {
+                const result = await session.run(createRecipeQuery, parameters);
+        
+                if (!result.records || result.records.length === 0 || !result.records[0].has('recipeId')) {
+                    console.error('Failed to create recipe');
+                    throw new Error('Failed to create recipe');
+                }
+        
+                const record = result.records[0];
+                const recipeNode = record.get('recipe');
+                const recipeId = record.get('recipeId').toString();
+                const elements = record.get('elements');
+        
+                const createdRecipe = {
+                    id: recipeId,
+                    name: recipeNode.properties.name,
+                    instructions: recipeNode.properties.instructions,
+                    elements,
+                };
+        
+                recipes.push(createdRecipe);
+        
+                return createdRecipe;
+            } catch (error) {
+                console.error(error);
+                throw new Error('Failed to create recipe');
+            } finally {
+                await session.close();
+            }
+        },                                       
     },
 };
 
