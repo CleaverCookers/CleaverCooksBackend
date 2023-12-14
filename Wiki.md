@@ -16,7 +16,7 @@ Welcome to the CleaverCooksBackend wiki! This wiki provides documentation in ord
 
 ### Purpose
 
-The CleaverCooksBackend GraphQL server supports CRUD operations for managing ingredients. This section explains the purpose, schema definition, resolvers, and provides usage examples for each operation.
+The CleaverCooksBackend GraphQL server supports CRUD operations for managing ingredients and recipes. This section explains the purpose, schema definition, resolvers, and provides usage examples for each operation.
 
 ### Schema Definition
 
@@ -30,6 +30,7 @@ The CleaverCooksBackend GraphQL server supports CRUD operations for managing ing
 - `createIngredient(name: String!)`: Creates a new ingredient with the given name.
 - `updateIngredient(id: ID!, name: String!)`: Updates the name of a specific ingredient by its ID.
 - `deleteIngredient(id: ID!)`: Deletes a specific ingredient by its ID.
+- `createRecipe(name: String!, instructions: String!, ingredients: [ElementInput]!)`: Creates a new recipe with the given name, instructions, and list of ingredients.
 
 #### Subscription
 
@@ -41,6 +42,7 @@ Explore the resolvers associated with each CRUD operation:
 
 - `getIngredient`, `getAllIngredients`: Query resolvers.
 - `createIngredient`, `updateIngredient`, `deleteIngredient`: Mutation resolvers.
+- `createRecipe`: Mutation resolver for creating a new recipe.
 - `ingredientAdded`: Subscription resolver.
 
 ### Usage Examples
@@ -80,11 +82,26 @@ mutation {
   }
 }
 
-# Example Subscription: Ingredient Added
-subscription {
-  ingredientAdded {
+# Example Mutation: Create Recipe
+mutation {
+  createRecipe(
+    name: "NewRecipe",
+    instructions: "Cooking instructions here",
+    ingredients: [
+      { id: "1", amount: 2.0 },
+      { id: "2", amount: 20.0 },
+      { id: "3", amount: 200.0 }
+    ]
+  ) {
     id
     name
+    instructions
+    elements {
+      amount
+      ingredient {
+        id
+        name
+      }
+    }
   }
 }
-```
