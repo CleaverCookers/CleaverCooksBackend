@@ -14,23 +14,8 @@ const typeDefs = gql`
     deleteIngredient(id: ID!): Ingredient
     createRecipe(name: String!, instructions: String!): Recipe
     addIngredientToRecipe(recipeId: ID!, element: ElementInput!): Element
-    removeIngredientFromRecipe(recipeId: ID!, ingredientId: ID!): Boolean
-    updateIngredientInRecipe(element: Element!): Element
-  }
-  
-  type Subscription {
-    ingredientAdded: Ingredient
-  }
-
-  type Ingredient {
-    id: ID!
-    name: String!
-  }
-
-  type Element {
-    id: ID!
-    amount: Float!
-    ingredient: Ingredient!
+    removeIngredientFromRecipe(elementId: ID!): Boolean
+    updateIngredientInRecipe(element: ElementInput!): Element
   }
 
   type Recipe {
@@ -40,8 +25,19 @@ const typeDefs = gql`
     elements: [Element]!
   }
 
+  type Element {
+    id: ID!
+    amount: Float!
+    ingredient: Ingredient!
+  }
+
+  type Ingredient {
+    id: ID!
+    name: String!
+  }
+
   input ElementInput {
-    ingredientId: ID!
+    id: ID!
     amount: Float!
   }
 `;

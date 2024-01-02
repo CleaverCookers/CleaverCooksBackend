@@ -179,7 +179,7 @@ const resolvers = {
             try {
                 const result = await session.run(addIngredientToRecipeQuery, {
                     recipeId: parseInt(recipeId),
-                    ingredientId: parseInt(element.ingredientId),
+                    ingredientId: parseInt(element.id),
                     amount: element.amount,
                 });
 
@@ -190,27 +190,26 @@ const resolvers = {
 
                 const elementNode = result.records[0].get('element');
                 const ingredientNode = result.records[0].get('ingredient');
-                const element = elementNode.properties;
-                element.id = elementNode.identity.toString();
-                element.ingredient = new Ingredient(ingredientNode.identity.toString(), ingredientNode.properties.name);
+                const elementAdded = elementNode.properties;
+                elementAdded.id = elementNode.identity.toString();
+                elementAdded.ingredient = new Ingredient(ingredientNode.identity.toString(), ingredientNode.properties.name);
 
-                return element;
+                return elementAdded;
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to add ingredient to recipe');
             }
         },
-        removeIngredientFromRecipe: async (parent, {recipeId, ingredientId}) => {
+        removeIngredientFromRecipe: async (parent, {elementId}) => {
             const removeIngredientFromRecipeQuery = `
                 MATCH (recipe:Recipe)-[element:Element]->(ingredient:Ingredient)
-                WHERE id(recipe) = $recipeId AND id(ingredient) = $ingredientId
+                WHERE id(element) = $elementId
                 DELETE element
                 RETURN recipe`;
 
             try {
                 const result = await session.run(removeIngredientFromRecipeQuery, {
-                    recipeId: parseInt(recipeId),
-                    ingredientId: parseInt(ingredientId),
+                    elementId: parseInt(elementId),
                 });
 
                 if (!result.records || result.records.length === 0) {
@@ -224,17 +223,16 @@ const resolvers = {
                 throw new Error('Failed to remove ingredient from recipe');
             }
         },
-        updateIngredientInRecipe: async (parent, {recipeId, element}) => {
+        updateIngredientInRecipe: async (parent, {element}) => {
             const updateIngredientInRecipeQuery = `
                 MATCH (recipe:Recipe)-[element:Element]->(ingredient:Ingredient)
-                WHERE id(recipe) = $recipeId AND id(ingredient) = $ingredientId
+                WHERE id(element) = $elementId
                 SET element.amount = $amount
                 RETURN recipe, element, ingredient`;
 
             try {
                 const result = await session.run(updateIngredientInRecipeQuery, {
-                    recipeId: parseInt(recipeId),
-                    ingredientId: parseInt(element.id),
+                    elementId: parseInt(element.id),
                     amount: element.amount,
                 });
 
@@ -245,11 +243,11 @@ const resolvers = {
 
                 const elementNode = result.records[0].get('element');
                 const ingredientNode = result.records[0].get('ingredient');
-                const element = elementNode.properties;
-                element.id = elementNode.identity.toString();
-                element.ingredient = new Ingredient(ingredientNode.identity.toString(), ingredientNode.properties.name);
+                const elementUpdated = elementNode.properties;
+                elementUpdated.id = elementNode.identity.toString();
+                elementUpdated.ingredient = new Ingredient(ingredientNode.identity.toString(), ingredientNode.properties.name);
 
-                return element;
+                return elementUpdated;
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to update ingredient in recipe');
