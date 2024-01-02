@@ -11,9 +11,9 @@ const typeDefs = gql`
     updateIngredient(id: ID!, name: String!): Ingredient
     deleteIngredient(id: ID!): Ingredient
     createRecipe(name: String!, instructions: String!): Recipe
-    addIngredientToRecipe(recipeId: ID!, element: ElementInput!): Recipe
-    removeIngredientFromRecipe(recipeId: ID!, ingredientId: ID!): Recipe
-    updateIngredientInRecipe(recipeId: ID!, element: ElementInput!): Recipe
+    addIngredientToRecipe(recipeId: ID!, element: ElementInput!): Boolean
+    removeIngredientFromRecipe(recipeId: ID!, ingredientId: ID!): Boolean
+    updateIngredientInRecipe(recipeId: ID!, element: ElementInput!): Boolean
   }
   
   type Subscription {
