@@ -157,14 +157,7 @@ const resolvers = {
                     throw new Error('Failed to add ingredient to recipe');
                 }
 
-                const record = result.records[0];
-                const recipeNode = record.get('recipe');
-                const id = recipeNode.identity.toString();
-                const recipe = recipeNode.properties;
-                recipe.id = id;
-                recipe.elements = [];
-
-                return recipe;
+                return true;
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to add ingredient to recipe');
@@ -187,15 +180,8 @@ const resolvers = {
                     console.error('Failed to remove ingredient from recipe');
                     throw new Error('Failed to remove ingredient from recipe');
                 }
-
-                const record = result.records[0];
-                const recipeNode = record.get('recipe');
-                const id = recipeNode.identity.toString();
-                const recipe = recipeNode.properties;
-                recipe.id = id;
-                recipe.elements = [];
-
-                return recipe;
+                
+                return true;
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to remove ingredient from recipe');
@@ -220,14 +206,7 @@ const resolvers = {
                     throw new Error('Failed to update ingredient in recipe');
                 }
 
-                const record = result.records[0];
-                const recipeNode = record.get('recipe');
-                const id = recipeNode.identity.toString();
-                const recipe = recipeNode.properties;
-                recipe.id = id;
-                recipe.elements = [];
-
-                return recipe;
+                return true;
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to update ingredient in recipe');
