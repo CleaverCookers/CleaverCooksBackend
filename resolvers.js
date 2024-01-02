@@ -166,7 +166,12 @@ const resolvers = {
                 RETURN recipe`;
 
             try {
-                const result = await session.run(updateRecipeQuery, parameters);
+                const result = await session.run(updateRecipeQuery, {
+                    id: parseInt(parameters.id),
+                    name: parameters.name,
+                    description: parameters.description,
+                    instructions: parameters.instructions,
+                });
 
                 if (!result.records || result.records.length === 0) {
                     console.error('Failed to update recipe');
@@ -188,7 +193,8 @@ const resolvers = {
         deleteRecipe: async (parent, {id}) => {
             const deleteRecipeQuery = `
                 MATCH (recipe:Recipe) WHERE id(recipe) = $id
-                DETACH DELETE recipe`;
+                DETACH DELETE recipe
+                RETURN recipe`;
 
             try {
                 const result = await session.run(deleteRecipeQuery, {
