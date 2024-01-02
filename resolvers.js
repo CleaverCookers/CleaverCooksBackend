@@ -179,7 +179,7 @@ const resolvers = {
             try {
                 const result = await session.run(addIngredientToRecipeQuery, {
                     recipeId: parseInt(recipeId),
-                    ingredientId: parseInt(element.id),
+                    ingredientId: parseInt(element.ingredientId),
                     amount: element.amount,
                 });
 
@@ -188,7 +188,13 @@ const resolvers = {
                     throw new Error('Failed to add ingredient to recipe');
                 }
 
-                return true;
+                const elementNode = result.records[0].get('element');
+                const ingredientNode = result.records[0].get('ingredient');
+                const element = elementNode.properties;
+                element.id = elementNode.identity.toString();
+                element.ingredient = new Ingredient(ingredientNode.identity.toString(), ingredientNode.properties.name);
+
+                return element;
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to add ingredient to recipe');
@@ -237,7 +243,13 @@ const resolvers = {
                     throw new Error('Failed to update ingredient in recipe');
                 }
 
-                return true;
+                const elementNode = result.records[0].get('element');
+                const ingredientNode = result.records[0].get('ingredient');
+                const element = elementNode.properties;
+                element.id = elementNode.identity.toString();
+                element.ingredient = new Ingredient(ingredientNode.identity.toString(), ingredientNode.properties.name);
+
+                return element;
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to update ingredient in recipe');

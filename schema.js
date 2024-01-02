@@ -13,9 +13,9 @@ const typeDefs = gql`
     updateIngredient(id: ID!, name: String!): Ingredient
     deleteIngredient(id: ID!): Ingredient
     createRecipe(name: String!, instructions: String!): Recipe
-    addIngredientToRecipe(recipeId: ID!, element: ElementInput!): Boolean
+    addIngredientToRecipe(recipeId: ID!, element: ElementInput!): Element
     removeIngredientFromRecipe(recipeId: ID!, ingredientId: ID!): Boolean
-    updateIngredientInRecipe(recipeId: ID!, element: ElementInput!): Boolean
+    updateIngredientInRecipe(element: Element!): Element
   }
   
   type Subscription {
@@ -41,7 +41,7 @@ const typeDefs = gql`
   }
 
   input ElementInput {
-    id: ID!
+    ingredientId: ID!
     amount: Float!
   }
 `;
