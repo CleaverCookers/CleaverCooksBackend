@@ -27,7 +27,6 @@ const resolvers = {
             }
         },
         getAllIngredients: async () => {
-            const session = driver.session();
             try {
               const result = await session.run('MATCH (n:Ingredient) RETURN ID(n) AS id, n.name AS name');
               return result.records
@@ -88,8 +87,6 @@ const resolvers = {
             }
         },
         createRecipe: async (parent,parameters) => {
-            const session = driver.session();
-        
             const createRecipeQuery = `
                 CREATE (recipe:Recipe {name: $name, instructions: $instructions})
                 RETURN recipe`;
