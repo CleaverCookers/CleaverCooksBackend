@@ -38,8 +38,6 @@ const resolvers = {
             } catch (error) {
               console.error(error);
               throw new Error('Failed to get ingredients');
-            } finally {
-              await session.close();
             }
           },
     },
@@ -110,10 +108,71 @@ const resolvers = {
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to create recipe');
-            } finally {
-                await session.close();
             }
-        },                                       
+        },
+        addIngredientToRecipe: async (parent, { recipeId, element }) => {
+            const addIngredientToRecipeQuery = `
+                MATCH (recipe:Recipe) WHERE id(recipe) = $recipeId
+                MATCH (ingredient:Ingredient) WHERE id(ingredient) = $ingredientId
+                CREATE (recipe)-[element:Element {amount: $amount}]->(ingredient)
+                RETURN recipe, element, ingredient`;
+
+            try {
+                const result = await session.run(addIngredientToRecipeQuery, {
+                    recipeId: parseInt(recipeId),
+                    ingredientId: parseInt(element.id),
+                    amount: element.amount,
+                });
+
+                if (!result.records || result.records.length === 0) {
+                    console.error('Failed to add ingredient to recipe');
+                    throw new Error('Failed to add ingredient to recipe');
+                }
+
+                const record = result.records[0];
+                const recipeNode = record.get('recipe');
+                const id = recipeNode.identity.toString();
+                const recipe = recipeNode.properties;
+                recipe.id = id;
+                recipe.elements = [];
+
+                return recipe;
+            } catch (error) {
+                console.error(error);
+                throw new Error('Failed to add ingredient to recipe');
+            }
+        },
+        removeIngredientFromRecipe: async (parent, { recipeId, ingredientId }) => {
+            const removeIngredientFromRecipeQuery = `
+                MATCH (recipe:Recipe)-[element:Element]->(ingredient:Ingredient)
+                WHERE id(recipe) = $recipeId AND id(ingredient) = $ingredientId
+                DELETE element
+                RETURN recipe`;
+
+            try {
+                const result = await session.run(removeIngredientFromRecipeQuery, {
+                    recipeId: parseInt(recipeId),
+                    ingredientId: parseInt(ingredientId),
+                });
+
+                if (!result.records || result.records.length === 0) {
+                    console.error('Failed to remove ingredient from recipe');
+                    throw new Error('Failed to remove ingredient from recipe');
+                }
+
+                const record = result.records[0];
+                const recipeNode = record.get('recipe');
+                const id = recipeNode.identity.toString();
+                const recipe = recipeNode.properties;
+                recipe.id = id;
+                recipe.elements = [];
+
+                return recipe;
+            } catch (error) {
+                console.error(error);
+                throw new Error('Failed to remove ingredient from recipe');
+            }
+        }
     },
 };
 
