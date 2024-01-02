@@ -4,6 +4,8 @@ const typeDefs = gql`
   type Query {
     getAllIngredients: [Ingredient]
     getIngredient(id: ID!): Ingredient
+    getAllRecipes: [Recipe]
+    getRecipe(id: ID!): Recipe
   }
   
   type Mutation {
@@ -29,7 +31,6 @@ const typeDefs = gql`
     id: ID!
     amount: Float!
     ingredient: Ingredient!
-    relationshipId: ID!
   }
 
   type Recipe {
