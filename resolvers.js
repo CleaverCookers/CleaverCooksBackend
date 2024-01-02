@@ -115,43 +115,35 @@ const resolvers = {
                 throw new Error(`Failed to delete ingredient: ${error.message}`);
             }
         },
-        createRecipe: async (parent, { name, instructions, ingredients }) => {
+        createRecipe: async (parent, { name, instructions }) => {
             const session = driver.session();
         
             const createRecipeQuery = `
                 CREATE (recipe:Recipe {name: $name, instructions: $instructions})
-                WITH recipe
-                UNWIND $ingredients AS ingredientData
-                MATCH (ingredient:Ingredient) WHERE id(ingredient) = toInteger(ingredientData.id)
-                CREATE (recipe)-[:use {amount: toFloat(ingredientData.amount)}]->(ingredient)
-                RETURN recipe, ID(recipe) AS recipeId,
-                COLLECT({ id: toString(id(ingredient)), amount: toFloat(ingredientData.amount), ingredient: { id: toString(id(ingredient)), name: ingredient.name } }) AS elements
-                `;
+                RETURN recipe`;
         
             const parameters = {
                 name,
-                instructions,
-                ingredients,
+                instructions
             };
                   
             try {
                 const result = await session.run(createRecipeQuery, parameters);
         
-                if (!result.records || result.records.length === 0 || !result.records[0].has('recipeId')) {
+                if (!result.records || result.records.length === 0) {
                     console.error('Failed to create recipe');
                     throw new Error('Failed to create recipe');
                 }
         
                 const record = result.records[0];
                 const recipeNode = record.get('recipe');
-                const recipeId = record.get('recipeId').toString();
-                const elements = record.get('elements');
+                const id = recipeNode.identity.toString();
         
                 const createdRecipe = {
-                    id: recipeId,
+                    id: id,
                     name: recipeNode.properties.name,
                     instructions: recipeNode.properties.instructions,
-                    elements,
+                    elements: []
                 };
         
                 recipes.push(createdRecipe);
