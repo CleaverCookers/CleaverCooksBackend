@@ -172,6 +172,38 @@ const resolvers = {
                 console.error(error);
                 throw new Error('Failed to remove ingredient from recipe');
             }
+        },
+        updateIngredientInRecipe: async (parent, { recipeId, element }) => {
+            const updateIngredientInRecipeQuery = `
+                MATCH (recipe:Recipe)-[element:Element]->(ingredient:Ingredient)
+                WHERE id(recipe) = $recipeId AND id(ingredient) = $ingredientId
+                SET element.amount = $amount
+                RETURN recipe, element, ingredient`;
+
+            try {
+                const result = await session.run(updateIngredientInRecipeQuery, {
+                    recipeId: parseInt(recipeId),
+                    ingredientId: parseInt(element.id),
+                    amount: element.amount,
+                });
+
+                if (!result.records || result.records.length === 0) {
+                    console.error('Failed to update ingredient in recipe');
+                    throw new Error('Failed to update ingredient in recipe');
+                }
+
+                const record = result.records[0];
+                const recipeNode = record.get('recipe');
+                const id = recipeNode.identity.toString();
+                const recipe = recipeNode.properties;
+                recipe.id = id;
+                recipe.elements = [];
+
+                return recipe;
+            } catch (error) {
+                console.error(error);
+                throw new Error('Failed to update ingredient in recipe');
+            }
         }
     },
 };

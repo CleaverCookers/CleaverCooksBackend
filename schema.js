@@ -13,6 +13,7 @@ const typeDefs = gql`
     createRecipe(name: String!, instructions: String!): Recipe
     addIngredientToRecipe(recipeId: ID!, element: ElementInput!): Recipe
     removeIngredientFromRecipe(recipeId: ID!, ingredientId: ID!): Recipe
+    updateIngredientInRecipe(recipeId: ID!, element: ElementInput!): Recipe
   }
   
   type Subscription {
