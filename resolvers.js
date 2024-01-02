@@ -42,17 +42,12 @@ const resolvers = {
         },
         getRecipe: async (parent, {id}) => {
             try {
-                const result = await session.run('MATCH (n:Recipe) WHERE id(n) = $id OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId', {id: parseInt(id)});
+                const result = await session.run('MATCH (n:Recipe) WHERE id(n) = $id OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId', {id: parseInt(id)});
                 const recipeMap = new Map();
                 result.records.forEach(record => {
                     const recipeId = record.get('id').toString();
                     if (!recipeMap.has(recipeId)) {
-                        recipeMap.set(recipeId, {
-                            id: recipeId,
-                            name: record.get('name'),
-                            instructions: record.get('instructions'),
-                            elements: [],
-                        });
+                        recipeMap.set(recipeId, new Recipe(recipeId,record.get('name'),record.get('description'),record.get('instructions'), []));
                     }
                     const recipe = recipeMap.get(recipeId);
                     const ingredientId = record.get('ingredientId');
@@ -70,17 +65,12 @@ const resolvers = {
         },
         getAllRecipes: async () => {
             try {
-                const result = await session.run('MATCH (n:Recipe) OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId');
+                const result = await session.run('MATCH (n:Recipe) OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId');
                 const recipeMap = new Map();
                 result.records.forEach(record => {
                     const recipeId = record.get('id').toString();
                     if (!recipeMap.has(recipeId)) {
-                        recipeMap.set(recipeId, {
-                            id: recipeId,
-                            name: record.get('name'),
-                            instructions: record.get('instructions'),
-                            elements: [],
-                        });
+                        recipeMap.set(recipeId, new Recipe(recipeId,record.get('name'),record.get('description'),record.get('instructions'), []));
                     }
                     const recipe = recipeMap.get(recipeId);
                     const ingredientId = record.get('ingredientId');
@@ -145,7 +135,7 @@ const resolvers = {
         },
         createRecipe: async (parent, parameters) => {
             const createRecipeQuery = `
-                CREATE (recipe:Recipe {name: $name, instructions: $instructions})
+                CREATE (recipe:Recipe {name: $name, description: $description, instructions: $instructions})
                 RETURN recipe`;
 
             try {

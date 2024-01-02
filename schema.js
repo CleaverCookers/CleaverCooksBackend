@@ -12,7 +12,7 @@ const typeDefs = gql`
     createIngredient(name: String!): Ingredient
     updateIngredient(id: ID!, name: String!): Ingredient
     deleteIngredient(id: ID!): Ingredient
-    createRecipe(name: String!, instructions: String!): Recipe
+    createRecipe(name: String!, description: String, instructions: String): Recipe
     addIngredientToRecipe(recipeId: ID!, element: ElementInput!): Element
     removeIngredientFromRecipe(elementId: ID!): Boolean
     updateIngredientInRecipe(element: ElementInput!): Element
@@ -21,7 +21,8 @@ const typeDefs = gql`
   type Recipe {
     id: ID!
     name: String!
-    instructions: String!
+    description: String
+    instructions: String
     elements: [Element]!
   }
 
