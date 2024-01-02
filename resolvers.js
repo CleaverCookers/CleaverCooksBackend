@@ -159,6 +159,53 @@ const resolvers = {
                 throw new Error('Failed to create recipe');
             }
         },
+        updateRecipe: async (parent, parameters) => {
+            const updateRecipeQuery = `
+                MATCH (recipe:Recipe) WHERE id(recipe) = $id
+                SET recipe.name = $name, recipe.description = $description, recipe.instructions = $instructions
+                RETURN recipe`;
+
+            try {
+                const result = await session.run(updateRecipeQuery, parameters);
+
+                if (!result.records || result.records.length === 0) {
+                    console.error('Failed to update recipe');
+                    throw new Error('Failed to update recipe');
+                }
+
+                const record = result.records[0];
+                const recipeNode = record.get('recipe');
+                const id = recipeNode.identity.toString();
+                const updatedRecipe = recipeNode.properties;
+                updatedRecipe.id = id;
+
+                return updatedRecipe;
+            } catch (error) {
+                console.error(error);
+                throw new Error('Failed to update recipe');
+            }
+        },
+        deleteRecipe: async (parent, {id}) => {
+            const deleteRecipeQuery = `
+                MATCH (recipe:Recipe) WHERE id(recipe) = $id
+                DETACH DELETE recipe`;
+
+            try {
+                const result = await session.run(deleteRecipeQuery, {
+                    id: parseInt(id),
+                });
+
+                if (!result.records || result.records.length === 0) {
+                    console.error('Failed to delete recipe');
+                    throw new Error('Failed to delete recipe');
+                }
+
+                return true;
+            } catch (error) {
+                console.error(error);
+                throw new Error('Failed to delete recipe');
+            }
+        },
         addIngredientToRecipe: async (parent, {recipeId, element}) => {
             const addIngredientToRecipeQuery = `
                 MATCH (recipe:Recipe) WHERE id(recipe) = $recipeId
