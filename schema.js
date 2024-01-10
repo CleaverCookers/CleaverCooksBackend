@@ -6,6 +6,7 @@ const typeDefs = gql`
     getIngredient(id: ID!): Ingredient
     getAllRecipes: [Recipe]
     getRecipe(id: ID!): Recipe
+    getRecipesByIngredients(ingredientIds: [ID!]!): [Recipe]
   }
   
   type Mutation {
@@ -26,6 +27,8 @@ const typeDefs = gql`
     description: String
     instructions: String
     elements: [Element]!
+    ingredientCount: Int
+    missingIngredientCount: Int
   }
  
   type RecipeInfos {
