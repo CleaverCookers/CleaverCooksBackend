@@ -85,7 +85,33 @@ const resolvers = {
                 console.error(error);
                 throw new Error('Failed to get recipes');
             }
-        }
+        },
+        getRecipesByIngredients: async (parent, {ingredientIds}) => {
+            try {
+                const result = await session.run(`
+                    MATCH (r:Recipe)
+                    OPTIONAL MATCH (r)-[:Element]->(i:Ingredient)
+                    WITH r, COUNT(i) AS ingredientCount, COLLECT(i.id) AS ingredientIds
+                    WITH r, ingredientCount, ingredientIds, $ingredientIds AS inputIngredientIds
+                    WITH r, ingredientCount, [id IN inputIngredientIds WHERE NOT id IN ingredientIds] AS missingIngredientIds
+                    RETURN r, ingredientCount, SIZE(missingIngredientIds) AS missingIngredientCount
+                    ORDER BY missingIngredientCount ASC
+                `, {ingredientIds: ingredientIds.map(id => parseInt(id))});
+        
+                const recipes = result.records.map(record => {
+                    const recipe = record.get('r').properties;
+                    recipe.id = record.get('r').identity.toString();
+                    recipe.ingredientCount = record.get('ingredientCount').toNumber(); // Convert to JavaScript number
+                    recipe.missingIngredientCount = record.get('missingIngredientCount').toNumber(); // Convert to JavaScript number
+                    return recipe;
+                });
+        
+                return recipes;
+            } catch (error) {
+                console.error(error);
+                throw new Error('Failed to get recipes by ingredients');
+            }
+        },
     },
     Mutation: {
         createIngredient: async (parent, {name}) => {
