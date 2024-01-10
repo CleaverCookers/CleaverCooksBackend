@@ -1,8 +1,8 @@
 class Ingredient {
-    constructor(id, title) {
-      this.id = id
-      this.title = title
+    constructor(id, name) {
+        this.id = id
+        this.name = name
     }
-  }
+}
 
-  module.exports = { Ingredient };
+module.exports = {Ingredient};

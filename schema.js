@@ -1,20 +1,44 @@
-const { gql } = require('apollo-server-express');
+const {gql} = require('apollo-server-express');
 
 const typeDefs = gql`
   type Query {
     getAllIngredients: [Ingredient]
     getIngredient(id: ID!): Ingredient
+    getAllRecipes: [Recipe]
+    getRecipe(id: ID!): Recipe
   }
   
   type Mutation {
     createIngredient(name: String!): Ingredient
     updateIngredient(id: ID!, name: String!): Ingredient
     deleteIngredient(id: ID!): Ingredient
-    createRecipe(name: String!, instructions: String!, ingredients: [ElementInput]!): Recipe
+    createRecipe(name: String!, description: String, instructions: String): Recipe
+    updateRecipe(id: ID!, name: String!, description: String, instructions: String): RecipeInfos
+    deleteRecipe(id: ID!): Boolean
+    addIngredientToRecipe(recipeId: ID!, element: ElementInput!): Element
+    removeIngredientFromRecipe(elementId: ID!): Boolean
+    updateIngredientInRecipe(element: ElementInput!): Element
   }
-  
-  type Subscription {
-    ingredientAdded: Ingredient
+
+  type Recipe {
+    id: ID!
+    name: String!
+    description: String
+    instructions: String
+    elements: [Element]!
+  }
+ 
+  type RecipeInfos {
+    id: ID!
+    name: String!
+    description: String
+    instructions: String
+  }
+
+  type Element {
+    id: ID!
+    amount: Float!
+    ingredient: Ingredient!
   }
 
   type Ingredient {
@@ -22,24 +46,10 @@ const typeDefs = gql`
     name: String!
   }
 
-  type Element {
+  input ElementInput {
     id: ID!
     amount: Float!
-    ingredient: Ingredient!
-    relationshipId: ID!
-}
-
-  type Recipe {
-    id: ID!
-    name: String!
-    instructions: String!
-    elements: [Element]!
   }
-
-  input ElementInput {
-  id: ID!
-  amount: Float!
-}
 `;
 
 module.exports = typeDefs;
