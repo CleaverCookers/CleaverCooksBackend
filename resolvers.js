@@ -101,8 +101,8 @@ const resolvers = {
                 const recipes = result.records.map(record => {
                     const recipe = record.get('r').properties;
                     recipe.id = record.get('r').identity.toString();
-                    recipe.ingredientCount = record.get('ingredientCount').toNumber(); // Convert to JavaScript number
-                    recipe.missingIngredientCount = record.get('missingIngredientCount').toNumber(); // Convert to JavaScript number
+                    recipe.ingredientCount = record.get('ingredientCount').toNumber();
+                    recipe.missingIngredientCount = record.get('missingIngredientCount').toNumber();
                     return recipe;
                 });
         
