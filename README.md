@@ -2,84 +2,96 @@
 
 ## Prerequisites
 
-1. **Node.js**: Make sure you have Node.js installed on your machine. You can download and install it from the official Node.js website: [Node.js Downloads](https://nodejs.org).
+Before you begin, ensure you have the following installed:
 
-2. **Git**: Ensure that Git is installed on your machine. You can download and install it from the official Git website: [Git Downloads](https://git-scm.com).
-
-3. **Neo4j Database**: Ensure you have a Neo4j database set up. You can download and install Neo4j from the official Neo4j website: [Neo4j Downloads](https://neo4j.com/download/).
+1. **Node.js**: Download and install Node.js from the [Node.js Downloads](https://nodejs.org) page.
+2. **Git**: Git is required for version control. Download and install it from [Git Downloads](https://git-scm.com).
+3. **Neo4j Database**: CleaverCooksBackend uses Neo4j as its database. Download and set up Neo4j from [Neo4j Downloads](https://neo4j.com/download/).
 
 ## Getting Started
 
-1. **Clone the Repository**: Open your terminal or command prompt and run the following commands to clone the project.
+### Clone the Repository
 
-   ```bash
-   git clone https://github.com/CleaverCookers/CleaverCooksBackend.git
-   cd CleaverCooksBackend
-   ```
+Use the following commands to clone and navigate to the CleaverCooksBackend project:
 
-2. **Install Dependencies**: Install the project dependencies using npm.
+```bash
+git clone https://github.com/CleaverCookers/CleaverCooksBackend.git
+cd CleaverCooksBackend
+```
 
-   ```bash
-   npm install
-   ```
-3. **Set Environment Variables**: Copy the .env.example to `.env` in the project root directory and add the following environment variables.
-   ```bash
-    NEO4J_URI=your_neo4j_uri
-    NEO4J_USERNAME=your_neo4j_username
-    NEO4J_PASSWORD=your_neo4j_password
-   ```
+### Install Dependencies
+
+Run the following command to install the project dependencies:
+
+```bash
+npm install
+```
+
+### Set Up Environment Variables
+
+Create a `.env` file in the project root directory based on the `.env.example` file. Update it with your Neo4j database details:
+
+```bash
+NEO4J_URI=your_neo4j_uri
+NEO4J_USERNAME=your_neo4j_username
+NEO4J_PASSWORD=your_neo4j_password
+```
 
 ## Development Workflow
 
-1. **Branching Strategy**: Follow a branching strategy for development. Create a new branch for each feature or bug fix.
+### Branching Strategy
 
-   ```bash
-   git checkout -b feature/new-feature
-   ```
+Adopt a consistent branching strategy:
 
-2. **Code Changes**: Make your code changes and commit them.
+```bash
+git checkout -b feature/your-new-feature
+```
 
-   ```bash
-   git add .
-   git commit -m "Add new feature"
-   ```
+### Code Changes and Commit
 
-3. **Push Changes**: Push your changes to the remote repository.
+After making changes, commit them to your branch:
 
-   ```bash
-   git push origin feature/new-feature
-   ```
+```bash
+git add .
+git commit -m "Describe your changes here"
+```
 
-4. **Pull Requests**: Create a pull request for your branch on the GitHub repository. Collaborate with team members and resolve any conflicts.
+### Push Changes and Pull Requests
 
-5. **Review and Merge**: Once the pull request is approved, merge it into the `develop` branch.
+Push your changes and create a pull request for review:
+
+```bash
+git push origin feature/your-new-feature
+```
+
+### Review and Merge
+
+Once reviewed and approved, merge your changes into the `develop` branch.
 
 ## Running the Server Locally
 
-1. **Start the Server**: Run the following command to start the backend server locally.
+To start the server locally:
 
-   ```bash
-   npm start
-   ```
+```bash
+npm start
+```
 
-   The server will be accessible at `http://localhost:3000/graphql`.
+Access the server at `http://localhost:3000/graphql`.
 
-2. **Testing Endpoints**: Use tools like [GraphQL Playground](https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/) or [Postman](https://www.postman.com) to test GraphQL endpoints.
+### Auto-restart with Nodemon
 
-## Additional Tips
+For auto-restarting the server during development:
 
-- **Auto-restart during Development**: If you want the server to automatically restart on code changes during development, use `nodemon`.
+```bash
+npm install nodemon --save-dev
+```
 
-   ```bash
-   npm install nodemon --save-dev
-   ```
+Update `package.json`:
 
-  Update the `scripts` section in `package.json`:
+```json
+"scripts": {
+  "start": "nodemon server.js"
+}
+```
 
-   ```json
-   "scripts": {
-     "start": "nodemon server.js"
-   }
-   ```
-
-  Now, run `npm start`, and the server will restart on file changes.
+Now, `npm start` will restart the server on file changes.
