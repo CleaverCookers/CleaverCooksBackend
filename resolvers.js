@@ -93,16 +93,16 @@ const resolvers = {
                     WITH r, count(i) AS ingredientCount
                     MATCH (r)-[:Element]->(i:Ingredient)
                     WHERE id(i) IN $ingredientIds
-                    WITH r, ingredientCount, count(i) AS missingIngredientCount
-                    RETURN r, ingredientCount, missingIngredientCount
-                    ORDER BY missingIngredientCount ASC, ingredientCount DESC
+                    WITH r, ingredientCount, count(i) AS matchingIngredientCount
+                    RETURN r, ingredientCount, matchingIngredientCount
+                    ORDER BY matchingIngredientCount ASC, ingredientCount DESC
             `, {ingredientIds: ingredientIds.map(id => parseInt(id))});
         
                 const recipes = result.records.map(record => {
                     const recipe = record.get('r').properties;
                     recipe.id = record.get('r').identity.toString();
                     recipe.ingredientCount = record.get('ingredientCount').toNumber();
-                    recipe.missingIngredientCount = recipe.ingredientCount - record.get('missingIngredientCount').toNumber();
+                    recipe.missingIngredientCount = recipe.ingredientCount - record.get('matchingIngredientCount').toNumber();
                     return recipe;
                 });
         
