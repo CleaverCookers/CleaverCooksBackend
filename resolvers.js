@@ -89,20 +89,20 @@ const resolvers = {
         getRecipesByIngredients: async (parent, {ingredientIds}) => {
             try {
                 const result = await session.run(`
-                    MATCH (r:Recipe)
-                    OPTIONAL MATCH (r)-[:Element]->(i:Ingredient)
-                    WITH r, COUNT(i) AS ingredientCount, COLLECT(i.id) AS ingredientIds
-                    WITH r, ingredientCount, ingredientIds, $ingredientIds AS inputIngredientIds
-                    WITH r, ingredientCount, [id IN inputIngredientIds WHERE NOT id IN ingredientIds] AS missingIngredientIds
-                    RETURN r, ingredientCount, SIZE(missingIngredientIds) AS missingIngredientCount
-                    ORDER BY missingIngredientCount ASC
-                `, {ingredientIds: ingredientIds.map(id => parseInt(id))});
+                    MATCH (r:Recipe)-[:Element]->(i:Ingredient)
+                    WITH r, count(i) AS ingredientCount
+                    MATCH (r)-[:Element]->(i:Ingredient)
+                    WHERE id(i) IN $ingredientIds
+                    WITH r, ingredientCount, count(i) AS missingIngredientCount
+                    RETURN r, ingredientCount, missingIngredientCount
+                    ORDER BY missingIngredientCount ASC, ingredientCount DESC
+            `, {ingredientIds: ingredientIds.map(id => parseInt(id))});
         
                 const recipes = result.records.map(record => {
                     const recipe = record.get('r').properties;
                     recipe.id = record.get('r').identity.toString();
                     recipe.ingredientCount = record.get('ingredientCount').toNumber();
-                    recipe.missingIngredientCount = record.get('missingIngredientCount').toNumber();
+                    recipe.missingIngredientCount = recipe.ingredientCount - record.get('missingIngredientCount').toNumber();
                     return recipe;
                 });
         
