@@ -32,7 +32,7 @@ npm install
 Create a `.env` file in the project root directory based on the `.env.example` file. Update it with your Neo4j database details:
 
 ```bash
-NEO4J_URI=your_neo4j_uri
+NEO4J_URI=neo4j://localhost:7687
 NEO4J_USERNAME=your_neo4j_username
 NEO4J_PASSWORD=your_neo4j_password
 ```

@@ -1,5 +1,9 @@
 const {gql} = require('apollo-server-express');
 
+/**
+ * The GraphQL schema in string form. It describes the type definitions for the API.
+ * @type {DocumentNode}
+ */
 const typeDefs = gql`
   type Query {
     getAllIngredients: [Ingredient]

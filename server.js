@@ -5,6 +5,10 @@ const resolvers = require('./resolvers');
 const server = new ApolloServer({typeDefs, resolvers});
 const app = express();
 
+/**
+ * Start the apollo server on the port defined using express.
+ * @returns {Promise<void>}
+ */
 async function startServer() {
     await server.start();
     server.applyMiddleware({app});
