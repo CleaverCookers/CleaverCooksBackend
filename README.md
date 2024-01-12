@@ -1,5 +1,8 @@
 # CleaverCooksBackend
 
+## Try the API
+You can find a production environment at https://cleavercooks.eliott.pro/graphql
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
