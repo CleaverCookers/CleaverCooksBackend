@@ -1,6 +1,9 @@
 const {Ingredient} = require("./Ingredient");
 const {Element} = require("./Element");
 
+/**
+ * A recipe is a series of instructions linked with ingredients (the link includes their quantity).
+ */
 class Recipe {
     constructor(id, name, description, instructions, elements) {
         this.id = id
@@ -10,16 +13,33 @@ class Recipe {
         this.elements = elements
     }
 
+    /**
+     * Get a single recipe by its id.
+     * @param driverSession
+     * @param id
+     * @returns {Promise<any>}
+     */
     static async getOneById(driverSession, id) {
         const result = await driverSession.run('MATCH (n:Recipe) WHERE id(n) = $id OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId', {id: parseInt(id)});
         return Recipe.convertRecordsToRecipes(result.records)[0];
     }
 
+    /**
+     * Get all recipes.
+     * @param driverSession
+     * @returns {Promise<any[]>}
+     */
     static async getAll(driverSession) {
         const result = await driverSession.run('MATCH (n:Recipe) OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId');
         return Recipe.convertRecordsToRecipes(result.records);
     }
 
+    /**
+     * Get all recipes that use all the ingredients in the ingredient list and sort them by the number of missing ingredients. (Less is better)
+     * @param driverSession
+     * @param ingredientList
+     * @returns {Promise<(PropertyPreview[] | P | P | P)[]>}
+     */
     static async getAllByIngredientList(driverSession, ingredientList) {
         const result = await driverSession.run(`
                     MATCH (r:Recipe)-[:Element]->(i:Ingredient)
@@ -41,6 +61,14 @@ class Recipe {
         });
     }
 
+    /**
+     * Create a new recipe.
+     * @param driverSession
+     * @param name
+     * @param description
+     * @param instructions
+     * @returns {Promise<PropertyPreview[]|P|P|P>}
+     */
     static async create(driverSession, name, description, instructions) {
         const result = await driverSession.run('CREATE (r:Recipe {name: $name, description: $description, instructions: $instructions}) RETURN r', {name, description, instructions});
         const singleRecord = result.records[0];
@@ -50,6 +78,15 @@ class Recipe {
         return recipeWithId;
     }
 
+    /**
+     * Update a recipe.
+     * @param driverSession
+     * @param id
+     * @param name
+     * @param description
+     * @param instructions
+     * @returns {Promise<PropertyPreview[]|P|P|P>}
+     */
     static async update(driverSession, id, name, description, instructions) {
         const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $id SET r.name = $name, r.description = $description, r.instructions = $instructions RETURN r', {id: parseInt(id), name, description, instructions});
         const singleRecord = result.records[0];
@@ -59,10 +96,23 @@ class Recipe {
         return recipeWithId;
     }
 
+    /**
+     * Delete a recipe.
+     * @param driverSession
+     * @param id
+     * @returns {Promise<void>}
+     */
     static async delete(driverSession, id) {
         await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $id DETACH DELETE r', {id: parseInt(id)});
     }
 
+    /**
+     * Add an ingredient to a recipe.
+     * @param driverSession
+     * @param recipeId
+     * @param element
+     * @returns {Promise<PropertyPreview[]|P|P|P>}
+     */
     static async addIngredientToRecipe(driverSession, recipeId, element) {
         const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $recipeId MATCH (i:Ingredient) WHERE id(i) = $ingredientId CREATE (r)-[element:Element {amount: $amount}]->(i) RETURN r, element, i', {recipeId: parseInt(recipeId), ingredientId: parseInt(element.id), amount: element.amount});
         const singleRecord = result.records[0];
@@ -74,11 +124,23 @@ class Recipe {
         return elementAdded;
     }
 
+    /**
+     * Remove an ingredient from a recipe.
+     * @param driverSession
+     * @param elementId
+     * @returns {Promise<boolean>}
+     */
     static async removeIngredientFromRecipe(driverSession, elementId) {
         const result = await driverSession.run('MATCH (r:Recipe)-[element:Element]->(i:Ingredient) WHERE id(element) = $elementId DELETE element', {elementId: parseInt(elementId)});
         return true;
     }
 
+    /**
+     * Update an ingredient in a recipe.
+     * @param driverSession
+     * @param element
+     * @returns {Promise<PropertyPreview[]|P|P|P>}
+     */
     static async updateIngredientInRecipe(driverSession, element) {
         const result = await driverSession.run('MATCH (r:Recipe)-[element:Element]->(i:Ingredient) WHERE id(element) = $elementId SET element.amount = $amount RETURN r, element, i', {elementId: parseInt(element.id), amount: element.amount});
         const singleRecord = result.records[0];
@@ -90,6 +152,11 @@ class Recipe {
         return elementUpdated;
     }
 
+    /**
+     * Convert a Neo4j records to a list of recipes with their elements + ingredients.
+     * @param records
+     * @returns {any[]}
+     */
     static convertRecordsToRecipes(records) {
         const recipeMap = new Map();
         records.forEach(record => {

@@ -11,6 +11,10 @@ const NEO4J_PASSWORD = process.env.NEO4J_PASSWORD;
 const driver = neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 const session = driver.session();
 
+/**
+ * The resolvers define the technique for fetching the types defined in the schema.
+ * Query resolvers retrieve data from the database, Mutation resolvers create, update and delete data in the database.
+ */
 const resolvers = {
     Query: {
         getIngredient: async (parent, {id}) => {
