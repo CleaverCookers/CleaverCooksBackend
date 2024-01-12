@@ -41,6 +41,55 @@ class Recipe {
         });
     }
 
+    static async create(driverSession, name, description, instructions) {
+        const result = await driverSession.run('CREATE (r:Recipe {name: $name, description: $description, instructions: $instructions}) RETURN r', {name, description, instructions});
+        const singleRecord = result.records[0];
+        const recipe = singleRecord.get(0);
+        const recipeWithId = recipe.properties;
+        recipeWithId.id = recipe.identity.toString();
+        return recipeWithId;
+    }
+
+    static async update(driverSession, id, name, description, instructions) {
+        const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $id SET r.name = $name, r.description = $description, r.instructions = $instructions RETURN r', {id: parseInt(id), name, description, instructions});
+        const singleRecord = result.records[0];
+        const recipe = singleRecord.get(0);
+        const recipeWithId = recipe.properties;
+        recipeWithId.id = recipe.identity.toString();
+        return recipeWithId;
+    }
+
+    static async delete(driverSession, id) {
+        await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $id DETACH DELETE r', {id: parseInt(id)});
+    }
+
+    static async addIngredientToRecipe(driverSession, recipeId, element) {
+        const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $recipeId MATCH (i:Ingredient) WHERE id(i) = $ingredientId CREATE (r)-[element:Element {amount: $amount}]->(i) RETURN r, element, i', {recipeId: parseInt(recipeId), ingredientId: parseInt(element.id), amount: element.amount});
+        const singleRecord = result.records[0];
+        const elementNode = singleRecord.get('element');
+        const ingredientNode = singleRecord.get('i');
+        const elementAdded = elementNode.properties;
+        elementAdded.id = elementNode.identity.toString();
+        elementAdded.ingredient = new Ingredient(ingredientNode.identity.toString(), ingredientNode.properties.name);
+        return elementAdded;
+    }
+
+    static async removeIngredientFromRecipe(driverSession, elementId) {
+        const result = await driverSession.run('MATCH (r:Recipe)-[element:Element]->(i:Ingredient) WHERE id(element) = $elementId DELETE element', {elementId: parseInt(elementId)});
+        return true;
+    }
+
+    static async updateIngredientInRecipe(driverSession, element) {
+        const result = await driverSession.run('MATCH (r:Recipe)-[element:Element]->(i:Ingredient) WHERE id(element) = $elementId SET element.amount = $amount RETURN r, element, i', {elementId: parseInt(element.id), amount: element.amount});
+        const singleRecord = result.records[0];
+        const elementNode = singleRecord.get('element');
+        const ingredientNode = singleRecord.get('i');
+        const elementUpdated = elementNode.properties;
+        elementUpdated.id = elementNode.identity.toString();
+        elementUpdated.ingredient = new Ingredient(ingredientNode.identity.toString(), ingredientNode.properties.name);
+        return elementUpdated;
+    }
+
     static convertRecordsToRecipes(records) {
         const recipeMap = new Map();
         records.forEach(record => {

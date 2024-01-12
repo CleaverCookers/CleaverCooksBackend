@@ -22,6 +22,28 @@ class Ingredient {
                 name: record.get('name'),
             }));
     }
+
+    static async create(driverSession, name) {
+        const result = await driverSession.run('CREATE (i:Ingredient {name: $name}) RETURN i', {name});
+        const singleRecord = result.records[0];
+        const ingredient = singleRecord.get(0);
+        const ingredientWithId = ingredient.properties;
+        ingredientWithId.id = ingredient.identity.toString();
+        return ingredientWithId;
+    }
+
+    static async update(driverSession, id, name) {
+        const result = await driverSession.run('MATCH (i:Ingredient) WHERE id(i) = $id SET i.name = $name RETURN i', {id: parseInt(id), name});
+        const singleRecord = result.records[0];
+        const ingredient = singleRecord.get(0);
+        const ingredientWithId = ingredient.properties;
+        ingredientWithId.id = ingredient.identity.toString();
+        return ingredientWithId;
+    }
+
+    static async delete(driverSession, id) {
+        await driverSession.run('MATCH (i:Ingredient) WHERE id(i) = $id DETACH DELETE i', {id: parseInt(id)});
+    }
 }
 
 module.exports = {Ingredient};
