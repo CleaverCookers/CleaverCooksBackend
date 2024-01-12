@@ -15,12 +15,7 @@ const resolvers = {
     Query: {
         getIngredient: async (parent, {id}) => {
             try {
-                const result = await session.run('MATCH (i:Ingredient) WHERE id(i) = $id RETURN i', {id: parseInt(id)});
-                const singleRecord = result.records[0];
-                const ingredient = singleRecord.get(0);
-                const ingredientWithId = ingredient.properties;
-                ingredientWithId.id = ingredient.identity.toString();
-                return ingredientWithId;
+                return await Ingredient.getOneById(session, id);
             } catch (error) {
                 console.error(error);
                 throw new Error(`Failed to get ingredient: ${error.message}`);
@@ -28,13 +23,7 @@ const resolvers = {
         },
         getAllIngredients: async () => {
             try {
-                const result = await session.run('MATCH (n:Ingredient) RETURN ID(n) AS id, n.name AS name');
-                return result.records
-                    .filter(record => record.get('name') !== null)
-                    .map(record => ({
-                        id: record.get('id').toString(),
-                        name: record.get('name'),
-                    }));
+                return await Ingredient.getAll(session);
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to get ingredients');
@@ -42,22 +31,7 @@ const resolvers = {
         },
         getRecipe: async (parent, {id}) => {
             try {
-                const result = await session.run('MATCH (n:Recipe) WHERE id(n) = $id OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId', {id: parseInt(id)});
-                const recipeMap = new Map();
-                result.records.forEach(record => {
-                    const recipeId = record.get('id').toString();
-                    if (!recipeMap.has(recipeId)) {
-                        recipeMap.set(recipeId, new Recipe(recipeId,record.get('name'),record.get('description'),record.get('instructions'), []));
-                    }
-                    const recipe = recipeMap.get(recipeId);
-                    const ingredientId = record.get('ingredientId');
-                    if (ingredientId !== null) {
-                        const ingredient = new Ingredient(ingredientId.toString(), record.get('ingredientName'));
-                        const element = new Element(record.get('relationshipId').toString(), record.get('amount'), ingredient);
-                        recipe.elements.push(element);
-                    }
-                });
-                return Array.from(recipeMap.values())[0];
+                return await Recipe.getOneById(session, id);
             } catch (error) {
                 console.error(error);
                 throw new Error(`Failed to get recipe: ${error.message}`);
@@ -65,22 +39,7 @@ const resolvers = {
         },
         getAllRecipes: async () => {
             try {
-                const result = await session.run('MATCH (n:Recipe) OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId');
-                const recipeMap = new Map();
-                result.records.forEach(record => {
-                    const recipeId = record.get('id').toString();
-                    if (!recipeMap.has(recipeId)) {
-                        recipeMap.set(recipeId, new Recipe(recipeId,record.get('name'),record.get('description'),record.get('instructions'), []));
-                    }
-                    const recipe = recipeMap.get(recipeId);
-                    const ingredientId = record.get('ingredientId');
-                    if (ingredientId !== null) {
-                        const ingredient = new Ingredient(ingredientId.toString(), record.get('ingredientName'));
-                        const element = new Element(record.get('relationshipId').toString(), record.get('amount'), ingredient);
-                        recipe.elements.push(element);
-                    }
-                });
-                return Array.from(recipeMap.values());
+                return await Recipe.getAll(session);
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to get recipes');
@@ -88,25 +47,7 @@ const resolvers = {
         },
         getRecipesByIngredients: async (parent, {ingredientIds}) => {
             try {
-                const result = await session.run(`
-                    MATCH (r:Recipe)-[:Element]->(i:Ingredient)
-                    WITH r, count(i) AS ingredientCount
-                    MATCH (r)-[:Element]->(i:Ingredient)
-                    WHERE id(i) IN $ingredientIds
-                    WITH r, ingredientCount, count(i) AS matchingIngredientCount
-                    RETURN r, ingredientCount, matchingIngredientCount
-                    ORDER BY matchingIngredientCount ASC, ingredientCount DESC
-            `, {ingredientIds: ingredientIds.map(id => parseInt(id))});
-        
-                const recipes = result.records.map(record => {
-                    const recipe = record.get('r').properties;
-                    recipe.id = record.get('r').identity.toString();
-                    recipe.ingredientCount = record.get('ingredientCount').toNumber();
-                    recipe.missingIngredientCount = recipe.ingredientCount - record.get('matchingIngredientCount').toNumber();
-                    return recipe;
-                });
-        
-                return recipes;
+                return await Recipe.getAllByIngredientList(session, ingredientIds);
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to get recipes by ingredients');
