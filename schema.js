@@ -45,6 +45,7 @@ const typeDefs = gql`
   type Element {
     id: ID!
     amount: Float!
+    unit: String
     ingredient: Ingredient!
   }
 
@@ -56,6 +57,7 @@ const typeDefs = gql`
   input ElementInput {
     id: ID!
     amount: Float!
+    unit: String
   }
 `;
 

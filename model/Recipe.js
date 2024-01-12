@@ -20,7 +20,7 @@ class Recipe {
      * @returns {Promise<any>}
      */
     static async getOneById(driverSession, id) {
-        const result = await driverSession.run('MATCH (n:Recipe) WHERE id(n) = $id OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId', {id: parseInt(id)});
+        const result = await driverSession.run('MATCH (n:Recipe) WHERE id(n) = $id OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, r.unit AS unit, ID(r) AS relationshipId', {id: parseInt(id)});
         return Recipe.convertRecordsToRecipes(result.records)[0];
     }
 
@@ -30,7 +30,7 @@ class Recipe {
      * @returns {Promise<any[]>}
      */
     static async getAll(driverSession) {
-        const result = await driverSession.run('MATCH (n:Recipe) OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, ID(r) AS relationshipId');
+        const result = await driverSession.run('MATCH (n:Recipe) OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, r.unit AS unit, ID(r) AS relationshipId');
         return Recipe.convertRecordsToRecipes(result.records);
     }
 
@@ -114,7 +114,7 @@ class Recipe {
      * @returns {Promise<PropertyPreview[]|P|P|P>}
      */
     static async addIngredientToRecipe(driverSession, recipeId, element) {
-        const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $recipeId MATCH (i:Ingredient) WHERE id(i) = $ingredientId CREATE (r)-[element:Element {amount: $amount}]->(i) RETURN r, element, i', {recipeId: parseInt(recipeId), ingredientId: parseInt(element.id), amount: element.amount});
+        const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $recipeId MATCH (i:Ingredient) WHERE id(i) = $ingredientId CREATE (r)-[element:Element {amount: $amount, unit: $unit}]->(i) RETURN r, element, i', {recipeId: parseInt(recipeId), ingredientId: parseInt(element.id), amount: element.amount, unit: element.unit});
         const singleRecord = result.records[0];
         const elementNode = singleRecord.get('element');
         const ingredientNode = singleRecord.get('i');
@@ -142,7 +142,7 @@ class Recipe {
      * @returns {Promise<PropertyPreview[]|P|P|P>}
      */
     static async updateIngredientInRecipe(driverSession, element) {
-        const result = await driverSession.run('MATCH (r:Recipe)-[element:Element]->(i:Ingredient) WHERE id(element) = $elementId SET element.amount = $amount RETURN r, element, i', {elementId: parseInt(element.id), amount: element.amount});
+        const result = await driverSession.run('MATCH (r:Recipe)-[element:Element]->(i:Ingredient) WHERE id(element) = $elementId SET element.amount = $amount, element.unit = $unit RETURN r, element, i', {elementId: parseInt(element.id), amount: element.amount, unit: element.unit});
         const singleRecord = result.records[0];
         const elementNode = singleRecord.get('element');
         const ingredientNode = singleRecord.get('i');
@@ -168,7 +168,7 @@ class Recipe {
             const ingredientId = record.get('ingredientId');
             if (ingredientId !== null) {
                 const ingredient = new Ingredient(ingredientId.toString(), record.get('ingredientName'));
-                const element = new Element(record.get('relationshipId').toString(), record.get('amount'), ingredient);
+                const element = new Element(record.get('relationshipId').toString(), record.get('amount'), record.get('unit'), ingredient);
                 recipe.elements.push(element);
             }
         });
