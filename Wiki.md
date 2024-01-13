@@ -109,6 +109,7 @@ query GetAllRecipes {
     name
     description
     instructions
+    image
     elements {
       id
       amount
@@ -129,6 +130,7 @@ query GetRecipe {
     name
     description
     instructions
+    image
     elements {
       id
       amount
@@ -179,7 +181,7 @@ mutation CreateRecipe {
   createRecipe(
     name: "Tomato Soup",
     description: "A delicious tomato soup",
-    instructions: "Blend tomatoes and heat"
+    instructions: "Blend tomatoes and heat",
   ) {
     id
     name
@@ -204,12 +206,14 @@ mutation UpdateRecipe {
     id: "1",
     name: "Spicy Tomato Soup",
     description: "A delicious and spicy tomato soup",
-    instructions: "Blend tomatoes, add spices and heat"
+    instructions: "Blend tomatoes, add spices and heat",
+    image: "spicy-tomato-soup.jpg",
   ) {
     id
     name
     description
     instructions
+    image
   }
 }
 ```
@@ -287,7 +291,7 @@ Represents the link between a recipe and its ingredients, encapsulating the quan
 
 ### Recipe Model
 
-Describes the recipe's structure, including title, description, instructions, and the elements (ingredients and quantities).
+Describes the recipe's structure, including title, description, instructions, image, and the elements (ingredients and quantities).
 
 ### Ingredient Model
 

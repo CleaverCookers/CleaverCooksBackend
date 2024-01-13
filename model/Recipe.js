@@ -5,11 +5,12 @@ const {Element} = require("./Element");
  * A recipe is a series of instructions linked with ingredients (the link includes their quantity).
  */
 class Recipe {
-    constructor(id, name, description, instructions, elements) {
+    constructor(id, name, description, instructions, image, elements) {
         this.id = id
         this.name = name
         this.description = description
         this.instructions = instructions
+        this.image = image
         this.elements = elements
     }
 
@@ -20,7 +21,7 @@ class Recipe {
      * @returns {Promise<any>}
      */
     static async getOneById(driverSession, id) {
-        const result = await driverSession.run('MATCH (n:Recipe) WHERE id(n) = $id OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, r.unit AS unit, ID(r) AS relationshipId', {id: parseInt(id)});
+        const result = await driverSession.run('MATCH (n:Recipe) WHERE id(n) = $id OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, n.image as image, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, r.unit AS unit, ID(r) AS relationshipId', {id: parseInt(id)});
         return Recipe.convertRecordsToRecipes(result.records)[0];
     }
 
@@ -30,7 +31,7 @@ class Recipe {
      * @returns {Promise<any[]>}
      */
     static async getAll(driverSession) {
-        const result = await driverSession.run('MATCH (n:Recipe) OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, r.unit AS unit, ID(r) AS relationshipId');
+        const result = await driverSession.run('MATCH (n:Recipe) OPTIONAL MATCH (n)-[r:Element]->(i:Ingredient) RETURN ID(n) AS id, n.name AS name, n.description AS description, n.instructions AS instructions, n.image as image, ID(i) AS ingredientId, i.name AS ingredientName, r.amount AS amount, r.unit AS unit, ID(r) AS relationshipId');
         return Recipe.convertRecordsToRecipes(result.records);
     }
 
@@ -67,9 +68,10 @@ class Recipe {
      * @param name
      * @param description
      * @param instructions
+     * @param image
      * @returns {Promise<PropertyPreview[]|P|P|P>}
      */
-    static async create(driverSession, name, description, instructions) {
+    static async create(driverSession, name, description, instructions, image) {
         const result = await driverSession.run('CREATE (r:Recipe {name: $name, description: $description, instructions: $instructions}) RETURN r', {name, description, instructions});
         const singleRecord = result.records[0];
         const recipe = singleRecord.get(0);
@@ -85,10 +87,11 @@ class Recipe {
      * @param name
      * @param description
      * @param instructions
+     * @param image
      * @returns {Promise<PropertyPreview[]|P|P|P>}
      */
-    static async update(driverSession, id, name, description, instructions) {
-        const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $id SET r.name = $name, r.description = $description, r.instructions = $instructions RETURN r', {id: parseInt(id), name, description, instructions});
+    static async update(driverSession, id, name, description, instructions, image) {
+        const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $id SET r.name = $name, r.description = $description, r.instructions = $instructions, r.image = $image RETURN r', {id: parseInt(id), name, description, instructions, image});
         const singleRecord = result.records[0];
         const recipe = singleRecord.get(0);
         const recipeWithId = recipe.properties;
@@ -162,7 +165,7 @@ class Recipe {
         records.forEach(record => {
             const recipeId = record.get('id').toString();
             if (!recipeMap.has(recipeId)) {
-                recipeMap.set(recipeId, new Recipe(recipeId,record.get('name'),record.get('description'),record.get('instructions'), []));
+                recipeMap.set(recipeId, new Recipe(recipeId,record.get('name'),record.get('description'),record.get('instructions'),record.get('image'), []));
             }
             const recipe = recipeMap.get(recipeId);
             const ingredientId = record.get('ingredientId');
