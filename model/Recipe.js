@@ -72,7 +72,7 @@ class Recipe {
      * @returns {Promise<PropertyPreview[]|P|P|P>}
      */
     static async create(driverSession, name, description, instructions, image) {
-        const result = await driverSession.run('CREATE (r:Recipe {name: $name, description: $description, instructions: $instructions, image: $image}) RETURN r', {name, description, instructions});
+        const result = await driverSession.run('CREATE (r:Recipe {name: $name, description: $description, instructions: $instructions}) RETURN r', {name, description, instructions});
         const singleRecord = result.records[0];
         const recipe = singleRecord.get(0);
         const recipeWithId = recipe.properties;
