@@ -86,7 +86,7 @@ const resolvers = {
         },
         createRecipe: async (parent, parameters) => {
             try {
-                return await Recipe.create(session, parameters.name, parameters.description, parameters.instructions);
+                return await Recipe.create(session, parameters.name, parameters.description, parameters.instructions, null);
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to create recipe');
@@ -94,7 +94,7 @@ const resolvers = {
         },
         updateRecipe: async (parent, parameters) => {
             try {
-                return await Recipe.update(session, parameters.id, parameters.name, parameters.description, parameters.instructions);
+                return await Recipe.update(session, parameters.id, parameters.name, parameters.description, parameters.instructions, parameters.image);
             } catch (error) {
                 console.error(error);
                 throw new Error('Failed to update recipe');
