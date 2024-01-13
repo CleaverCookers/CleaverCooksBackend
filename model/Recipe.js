@@ -91,7 +91,7 @@ class Recipe {
      * @returns {Promise<PropertyPreview[]|P|P|P>}
      */
     static async update(driverSession, id, name, description, instructions, image) {
-        const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $id SET r.name = $name, r.description = $description, r.instructions = $instructions, r.image = $image RETURN r', {id: parseInt(id), name, description, instructions});
+        const result = await driverSession.run('MATCH (r:Recipe) WHERE id(r) = $id SET r.name = $name, r.description = $description, r.instructions = $instructions, r.image = $image RETURN r', {id: parseInt(id), name, description, instructions, image});
         const singleRecord = result.records[0];
         const recipe = singleRecord.get(0);
         const recipeWithId = recipe.properties;
